@@ -18,7 +18,7 @@ file_location <- 'jatos_gui_downloads'
 # Get the file mapping prolific IDs with randID
 prol_to_rand <- read_csv(paste0('../../../',
                                 Sys.getenv("USERNAME"),
-                                '/ownCloud/Cambridge/PhD/projects/fast_schema_mapping/prolific_metadata/prol_id_to_rand_id.csv'))
+                                '/ownCloud/Cambridge/PhD/projects/schema_boards/prolific_metadata/prol_id_to_rand_id.csv'))
 
 # Get a list of all files in the folder
 incoming_files <- list.files(paste0('./data/incoming_data/',file_location,'/'))

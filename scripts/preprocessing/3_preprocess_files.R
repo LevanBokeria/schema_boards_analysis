@@ -41,7 +41,7 @@ for (iFile in incoming_files){
         ## Get the performance output df -----------------------
 
         block_results <- as_tibble(
-                json_decoded$outputData$block_results_hidden_pa_learning
+                json_decoded$outputData$block_results
         )
 
         block_results <- block_results %>%
@@ -49,8 +49,8 @@ for (iFile in incoming_files){
         
         # Sanity check
         n_trials_per_block <- block_results %>%
-                filter(!condition %in% c('practice','practice2')) %>% 
-                group_by(condition,block) %>%
+                filter(!condition %in% c('practice')) %>% 
+                group_by(condition,learning_stage,block) %>%
                 summarise(n = n())
         if (any(n_trials_per_block$n != 24)){
                 stop('n trials per block is wrong!')
@@ -58,7 +58,12 @@ for (iFile in incoming_files){
         
         # All the mutations
         block_results <- block_results %>%
-                mutate(across(.cols = c(block,condition,hidden_pa_img),as.factor),
+                mutate(across(.cols = c(learning_stage,
+                                        block,
+                                        condition,
+                                        arrangement,
+                                        pa_img,
+                                        pa_img_type),as.factor),
                        correct = as.numeric(correct),
                        mouse_dist_cb = abs(mouse_clientX - pa_center_x) +
                                abs(mouse_clientY - pa_center_y),
@@ -79,24 +84,24 @@ for (iFile in incoming_files){
         
         
         
-        # Add a row counter for each occurrence of a hidden_pa_img, 
+        # Add a row counter for each occurrence of a pa_img, 
         # within that condition and within that block
         block_results <- block_results %>%
-                group_by(condition,block,hidden_pa_img) %>%
-                mutate(hidden_pa_img_row_number = row_number()) %>%
+                group_by(condition,learning_stage,block,pa_img) %>%
+                mutate(pa_img_row_number = row_number()) %>%
                 ungroup()
         
-        # Add a row counter for each occurrence of a hidden_pa_img, 
+        # Add a row counter for each occurrence of a pa_img, 
         # within that condition, across the two blocks
         block_results <- block_results %>%
-                group_by(condition,hidden_pa_img) %>%
-                mutate(hidden_pa_img_row_number_across_blocks = row_number()) %>%
+                group_by(condition,learning_stage,pa_img) %>%
+                mutate(pa_img_row_number_across_blocks = row_number()) %>%
                 ungroup()
         
         
         # Add trial index counter for each block
         block_results <- block_results %>%
-                group_by(condition,block) %>%
+                group_by(condition,learning_stage,block) %>%
                 mutate(block_trial_idx = row_number(),
                        .after = block) %>%
                 ungroup()

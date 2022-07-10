@@ -67,4 +67,4 @@ for (iFile in incoming_files){
 write_csv(as.data.frame(prol_ids),
           paste0('../../../',
                  Sys.getenv("USERNAME"),
-                 '/ownCloud/Cambridge/PhD/projects/fast_schema_mapping/prolific_metadata/incoming_prol_ids.csv'))
+                 '/ownCloud/Cambridge/PhD/projects/schema_boards/prolific_metadata/incoming_prol_ids.csv'))
