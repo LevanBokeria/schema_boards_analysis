@@ -137,94 +137,93 @@ for (iFile in incoming_files){
         
         ## Intermediate feedback ----------------------------------------
         
-        curr_ptp_int_fb <- json_decoded$outputData$break_results[[1]][1,]
-        
-        for (iBreak in seq(2,11)){
-                curr_ptp_int_fb <- bind_rows(curr_ptp_int_fb,json_decoded$outputData$break_results[[iBreak]][1,])
-        }
-        
-        curr_ptp_int_fb <- curr_ptp_int_fb %>%
-                mutate(response = response$Q0) %>%
-                mutate(ptp = json_decoded$prolific_ID, .before = rt) %>%
-                select(c(ptp,rt,response,time_elapsed))
-        
-        int_fb_all_ptp <- bind_rows(int_fb_all_ptp,curr_ptp_int_fb)
-        
-        ## Final Feedback -----------------------
-        
-        # Add up feedback
-        curr_ptp_feedback <- 
-                as_tibble(
-                        json_decoded[["outputData"]][["debriefing"]][["response"]]
-                )
-        
-        # Remove the NA row, from the experiment explanation page
-        curr_ptp_feedback <- curr_ptp_feedback %>%
-                filter(rowSums(is.na(curr_ptp_feedback)) != ncol(curr_ptp_feedback))
-        
-        # Add the participant ID
-        curr_ptp_feedback <- curr_ptp_feedback %>%
-                mutate(ptp = json_decoded$prolific_ID, .before = Q0,
-                       ptp = as.factor(ptp))        
-        # Concatenate
-        feedback_all_ptp <- bind_rows(feedback_all_ptp,curr_ptp_feedback)
-        
-        
-        ## Hidden/Visible item names ----------------------
-        
-        # Congregate listing of the hidden and visible items
-        curr_ptp_listings <- bind_rows(
-                json_decoded$outputData$break_results[[1]][3,],
-                json_decoded$outputData$break_results[[3]][3,],
-                json_decoded$outputData$break_results[[5]][3,],
-                json_decoded$outputData$break_results[[7]][3,],
-                json_decoded$outputData$break_results[[9]][3,]
-        )
-        curr_ptp_listings <- curr_ptp_listings %>%
-                select(rt,response) %>%
-                mutate(response.Q0 = response$Q0,
-                       response.Q1 = response$Q1) %>% 
-                select(-response) %>% 
-                mutate(ptp = json_decoded$prolific_ID, .before = rt) %>% 
-                mutate(boards = unique(block_results$condition)[3:7], .before = rt)
-
-        listings_all_ptp <- bind_rows(listings_all_ptp,curr_ptp_listings)
-        
-        
-        ## Times spent at each break --------------------
-        curr_ptp_break_rt <- NULL
-        # curr_ptp_break_rt[1] <- json_decoded$prolific_ID
-        for (iBreak in seq(1,11)){
-                curr_ptp_break_rt[iBreak] <- sum(json_decoded$outputData$break_results[[iBreak]]$rt,na.rm=T)
-        }
-        
-        curr_ptp_break_rt <- curr_ptp_break_rt %>%
-                as_tibble() %>% 
-                rename(time_spent_msec = value) %>%
-                mutate(time_spent_mins = time_spent_msec/1000/60) %>%
-                mutate(break_idx = 1:nrow(.), .before = time_spent_msec) %>%
-                mutate(ptp = json_decoded$prolific_ID, .before = break_idx)
-                
-        
-        
-        break_rt_all_ptp <- bind_rows(break_rt_all_ptp,curr_ptp_break_rt)
-        
-        ## Times spent at instructions ---------------------------
-        
-        # For the first instructions
-        inst_1 <- do.call(rbind, 
-                          json_decoded$outputData$instructions_results$instructions_1)
-        inst_2 <- do.call(rbind, 
-                          json_decoded$outputData$instructions_results$instructions_2)
-        
-        # Combine these
-        curr_ptp_instructions_rt <- rbind(inst_1,inst_2)
-        
-        # Add the participant id
-        curr_ptp_instructions_rt <- curr_ptp_instructions_rt %>%
-                mutate(ptp = json_decoded$prolific_ID, .before = page_index)
-        
-        instructions_rt_all_ptp <- bind_rows(instructions_rt_all_ptp, curr_ptp_instructions_rt)
+        # curr_ptp_int_fb <- json_decoded$outputData$transition_results$any_issues
+        # 
+        # for (iBreak in seq(2,11)){
+        #         curr_ptp_int_fb <- bind_rows(curr_ptp_int_fb,json_decoded$outputData$break_results[[iBreak]][1,])
+        # }
+        # 
+        # curr_ptp_int_fb <- curr_ptp_int_fb %>%
+        #         mutate(response = response$Q0) %>%
+        #         mutate(ptp = json_decoded$prolific_ID, .before = rt) %>%
+        #         select(c(ptp,rt,response,time_elapsed))
+        # 
+        # int_fb_all_ptp <- bind_rows(int_fb_all_ptp,curr_ptp_int_fb)
+        # 
+        # ## Final Feedback -----------------------
+        # 
+        # # Add up feedback
+        # curr_ptp_feedback <- 
+        #         as_tibble(
+        #                 json_decoded[["outputData"]][["debriefing"]][["response"]]
+        #         )
+        # 
+        # # Remove the NA row, from the experiment explanation page
+        # curr_ptp_feedback <- curr_ptp_feedback %>%
+        #         filter(rowSums(is.na(curr_ptp_feedback)) != ncol(curr_ptp_feedback))
+        # 
+        # # Add the participant ID
+        # curr_ptp_feedback <- curr_ptp_feedback %>%
+        #         mutate(ptp = json_decoded$prolific_ID, .before = Q0,
+        #                ptp = as.factor(ptp))        
+        # # Concatenate
+        # feedback_all_ptp <- bind_rows(feedback_all_ptp,curr_ptp_feedback)
+        # 
+        # 
+        # ## Hidden/Visible item names ----------------------
+        # 
+        # # Congregate listing of the hidden and visible items
+        # curr_ptp_listings <- bind_rows(
+        #         json_decoded$outputData$break_results[[1]][3,],
+        #         json_decoded$outputData$break_results[[3]][3,],
+        #         json_decoded$outputData$break_results[[5]][3,],
+        #         json_decoded$outputData$break_results[[7]][3,],
+        #         json_decoded$outputData$break_results[[9]][3,]
+        # )
+        # curr_ptp_listings <- curr_ptp_listings %>%
+        #         select(rt,response) %>%
+        #         mutate(response.Q0 = response$Q0,
+        #                response.Q1 = response$Q1) %>% 
+        #         select(-response) %>% 
+        #         mutate(ptp = json_decoded$prolific_ID, .before = rt) %>% 
+        #         mutate(boards = unique(block_results$condition)[3:7], .before = rt)
+        # 
+        # listings_all_ptp <- bind_rows(listings_all_ptp,curr_ptp_listings)
+        # 
+        # ## Times spent at each break --------------------
+        # curr_ptp_break_rt <- NULL
+        # # curr_ptp_break_rt[1] <- json_decoded$prolific_ID
+        # for (iBreak in seq(1,11)){
+        #         curr_ptp_break_rt[iBreak] <- sum(json_decoded$outputData$break_results[[iBreak]]$rt,na.rm=T)
+        # }
+        # 
+        # curr_ptp_break_rt <- curr_ptp_break_rt %>%
+        #         as_tibble() %>% 
+        #         rename(time_spent_msec = value) %>%
+        #         mutate(time_spent_mins = time_spent_msec/1000/60) %>%
+        #         mutate(break_idx = 1:nrow(.), .before = time_spent_msec) %>%
+        #         mutate(ptp = json_decoded$prolific_ID, .before = break_idx)
+        #         
+        # 
+        # 
+        # break_rt_all_ptp <- bind_rows(break_rt_all_ptp,curr_ptp_break_rt)
+        # 
+        # ## Times spent at instructions ---------------------------
+        # 
+        # # For the first instructions
+        # inst_1 <- do.call(rbind, 
+        #                   json_decoded$outputData$instructions_results$instructions_1)
+        # inst_2 <- do.call(rbind, 
+        #                   json_decoded$outputData$instructions_results$instructions_2)
+        # 
+        # # Combine these
+        # curr_ptp_instructions_rt <- rbind(inst_1,inst_2)
+        # 
+        # # Add the participant id
+        # curr_ptp_instructions_rt <- curr_ptp_instructions_rt %>%
+        #         mutate(ptp = json_decoded$prolific_ID, .before = page_index)
+        # 
+        # instructions_rt_all_ptp <- bind_rows(instructions_rt_all_ptp, curr_ptp_instructions_rt)
         
 }
 
@@ -237,29 +236,29 @@ block_results_all_ptp <- block_results_all_ptp %>%
                                             'random_loc',
                                             'no_schema'))
 
-names(feedback_all_ptp) <- c('ptp',
-                             'Clear instructions?',
-                             'Notice schema_C',
-                             'Notice schema_IC',
-                             'Notice landmarks',
-                             'Notice random',
-                             'Strategy?',
-                             'Did visible ones help or hinder?',
-                             'Anything else')
+# names(feedback_all_ptp) <- c('ptp',
+#                              'Clear instructions?',
+#                              'Notice schema_C',
+#                              'Notice schema_IC',
+#                              'Notice landmarks',
+#                              'Notice random',
+#                              'Strategy?',
+#                              'Did visible ones help or hinder?',
+#                              'Anything else')
 
-# Create condition orders ################
-condition_orders <- tibble(.rows = 7)
-
-all_ptp <- unique(block_results_all_ptp$ptp)
-
-for (iPtp in as.vector(all_ptp)){
-        iPtp
-        condition_orders[iPtp] <-
-                unique(
-                        block_results_all_ptp$condition[
-                                block_results_all_ptp$ptp==iPtp
-                        ])
-}
+# # Create condition orders ################
+# condition_orders <- tibble(.rows = 7)
+# 
+# all_ptp <- unique(block_results_all_ptp$ptp)
+# 
+# for (iPtp in as.vector(all_ptp)){
+#         iPtp
+#         condition_orders[iPtp] <-
+#                 unique(
+#                         block_results_all_ptp$condition[
+#                                 block_results_all_ptp$ptp==iPtp
+#                         ])
+# }
 
 # Save everything #######################
 if (saveDataCSV){
@@ -267,14 +266,14 @@ if (saveDataCSV){
         print('Overwriting data...')
         
         write_csv(block_results_all_ptp,'./results/preprocessed_data/block_results_long_form.csv')
-        write_csv(feedback_all_ptp,'./results/preprocessed_data/feedback_all_ptp.csv')
-        write_csv(int_fb_all_ptp,'./results/preprocessed_data/intermediate_feedback_all_ptp.csv')
-        write_csv(listings_all_ptp,'./results/preprocessed_data/listings_all_ptp.csv')
-        write.csv(break_rt_all_ptp,'./results/preprocessed_data/break_rt_all_ptp.csv',
-                  row.names = F)
-        write.csv(instructions_rt_all_ptp,
-                  './results/preprocessed_data/instructions_rt_all_ptp.csv',
-                  row.names = FALSE)
+        # write_csv(feedback_all_ptp,'./results/preprocessed_data/feedback_all_ptp.csv')
+        # write_csv(int_fb_all_ptp,'./results/preprocessed_data/intermediate_feedback_all_ptp.csv')
+        # write_csv(listings_all_ptp,'./results/preprocessed_data/listings_all_ptp.csv')
+        # write.csv(break_rt_all_ptp,'./results/preprocessed_data/break_rt_all_ptp.csv',
+        #           row.names = F)
+        # write.csv(instructions_rt_all_ptp,
+        #           './results/preprocessed_data/instructions_rt_all_ptp.csv',
+        #           row.names = FALSE)
         
         print('Data overwritten.')
 }
