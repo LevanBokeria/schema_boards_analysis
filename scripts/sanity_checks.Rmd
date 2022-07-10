@@ -1,0 +1,71 @@
+---
+title: "Schema boards: Analyzing everything"
+output:
+  html_document:
+    number_sections: false
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+# Setup: load data, define variables, etc
+
+```{r load-data-define-variables}
+
+rm(list=ls())
+
+source('./scripts/utils/load_all_libraries.R')
+
+qc_filter <- F
+
+source('./scripts/utils/load_transform_data.R')
+
+qc_table <- import('./results/qc_check_sheets/qc_table.csv')
+
+if (qc_filter){
+        
+        qc_pass_ptp <- qc_table %>%
+                filter(!qc_fail_overall) %>%
+                select(ptp) %>% .[[1]]
+        
+        
+        data_summary <- data_summary %>%
+                filter(ptp %in% qc_pass_ptp)
+        long_data <- long_data %>%
+                filter(ptp %in% qc_pass_ptp)        
+        
+}
+
+## BF test against 0 
+reportBF = function(x, digits){
+        round(as.numeric(as.vector(x)), digits)
+}
+
+```
+
+```{r n-trials}
+
+long_data %>%
+        group_by(ptp,
+                 condition,
+                 block) %>%
+        summarise(n_trials = n()) %>%
+        ungroup()
+
+```
+
+```{r rt, fig.height=25, fig.width=15}
+
+long_data %>%
+        ggplot(aes(x=rt,fill=condition)) +
+        geom_histogram() +
+        facet_grid(ptp~condition+block) +
+        geom_vline(xintercept = 1000, linetype = 'dashed')
+
+
+
+
+
+```
+
